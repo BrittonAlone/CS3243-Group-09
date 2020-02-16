@@ -10,7 +10,72 @@ class Puzzle(object):
         self.goal_state = goal_state
         self.actions = list()
 
+    class State:
+        def __init__(self, board, moves):
+            self.board = board # Board object
+            self.moves = moves # list of moves
+
+    def findSuccessors(self, state):
+        successors = []
+        if state.board.blankSpace[1] != 0:
+            newBoard = self.moveBlankSpaceLeft(state.board)
+            newMoves = list(state.moves)
+            newMoves.append("LEFT")
+            successors.append(self.State(newBoard, newMoves))
+        if state.board.blankSpace[1] != len(state.board.blocks[0]) - 1:
+            newBoard = self.moveBlankSpaceRight(state.board)
+            newMoves = list(state.moves)
+            newMoves.append("RIGHT")
+            successors.append(self.State(newBoard, newMoves))
+        if state.board.blankSpace[0] != 0:
+            newBoard = self.moveBlankSpaceUp(state.board)
+            newMoves = list(state.moves)
+            newMoves.append("UP")
+            successors.append(self.State(newBoard, newMoves))
+        if state.board.blankSpace[0] != len(state.board.blocks[0]) - 1:
+            newBoard = self.moveBlankSpaceDown(state.board)
+            newMoves = list(state.moves)
+            newMoves.append("DOWN")
+            successors.append(self.State(newBoard, newMoves))
+        return successors
+
+    class Board:
+        def __init__(self, blocks):
+            self.blocks = blocks
+            for i in range(len(blocks[0])):
+                for j in range(len(blocks[0])):
+                    if blocks[i][j] == 0:
+                        self.blankSpace = [i, j]
+                        break
+            
+    def moveBlankSpaceLeft(self, board):
+        newBlocks = deepcopy(board.blocks)
+        newBlocks[board.blankSpace[0]][board.blankSpace[1]] = newBlocks[board.blankSpace[0]][board.blankSpace[1] - 1]
+        newBlocks[board.blankSpace[0]][board.blankSpace[1] - 1] = 0
+        return self.Board(newBlocks)
+
+    def moveBlankSpaceRight(self, board):
+        newBlocks = deepcopy(board.blocks)
+        newBlocks[board.blankSpace[0]][board.blankSpace[1]] = newBlocks[board.blankSpace[0]][board.blankSpace[1] + 1]
+        newBlocks[board.blankSpace[0]][board.blankSpace[1] + 1] = 0
+        return self.Board(newBlocks)
+
+    def moveBlankSpaceUp(self, board):
+        newBlocks = deepcopy(board.blocks)
+        newBlocks[board.blankSpace[0]][board.blankSpace[1]] = newBlocks[board.blankSpace[0] - 1][board.blankSpace[1]]
+        newBlocks[board.blankSpace[0] - 1][board.blankSpace[1]] = 0
+        return self.Board(newBlocks)
+
+    def moveBlankSpaceDown(self, board):
+        newBlocks = deepcopy(board.blocks)
+        newBlocks[board.blankSpace[0]][board.blankSpace[1]] = newBlocks[board.blankSpace[0] + 1][board.blankSpace[1]]
+        newBlocks[board.blankSpace[0] + 1][board.blankSpace[1]] = 0
+        return self.Board(newBlocks)
+
     def solve(self):
+        if self.init_state == self.goal_state:
+            print("Initial and goal states are identical!")
+            return []
         # Iterative Depth Search (IDS)
         # start with depth of 3
         print("Starting IDS.")
@@ -21,7 +86,7 @@ class Puzzle(object):
 
             # initialise stack with initial state
             stack = deque()
-            stack.append(State(Board(init_state), []))
+            stack.append(self.State(self.Board(init_state), []))
 
             visited = set() # set of explored block layouts
 
@@ -32,7 +97,7 @@ class Puzzle(object):
                 visited.add(self.stringifyBlocks(currState.board.blocks))
                 if len(currState.moves) == depth: # maximum depth reached for path
                     continue
-                successors = currState.findSuccessors()
+                successors = self.findSuccessors(currState)
                 for successor in successors:
                     if successor.board.blocks == self.goal_state:
                         # goal state found
@@ -40,7 +105,9 @@ class Puzzle(object):
                         print("Goal state found!")
                         print("Move sequence:")
                         print(successor.moves)
-                        print("Time taken: " + str((endTime - startTime).total_seconds()) + " seconds.")
+                        delta = endTime - startTime
+                        print("Time taken: " + str(delta.seconds) + "." 
+                        + str(delta.microseconds) + " seconds.")
                         return successor.moves
                     stack.append(successor)
 
@@ -48,70 +115,7 @@ class Puzzle(object):
 
     # hashing an entire Board or State object is too slow, so we hash the 2D array of blocks instead    
     def stringifyBlocks(self, blocks):
-        return ''.join(''.join(map(str, row)) for row in blocks)
-        
-class State:
-    def __init__(self, board, moves):
-        self.board = board # Board object
-        self.moves = moves # list of moves
-
-    def findSuccessors(self):
-        successors = []
-        if self.board.blankSpace[1] != 0:
-            newBoard = self.board.moveBlankSpaceLeft()
-            newMoves = self.moves.copy()
-            newMoves.append("LEFT")
-            successors.append(State(newBoard, newMoves))
-        if self.board.blankSpace[1] != len(self.board.blocks[0]) - 1:
-            newBoard = self.board.moveBlankSpaceRight()
-            newMoves = self.moves.copy()
-            newMoves.append("RIGHT")
-            successors.append(State(newBoard, newMoves))
-        if self.board.blankSpace[0] != 0:
-            newBoard = self.board.moveBlankSpaceUp()
-            newMoves = self.moves.copy()
-            newMoves.append("UP")
-            successors.append(State(newBoard, newMoves))
-        if self.board.blankSpace[0] != len(self.board.blocks[0]) - 1:
-            newBoard = self.board.moveBlankSpaceDown()
-            newMoves = self.moves.copy()
-            newMoves.append("DOWN")
-            successors.append(State(newBoard, newMoves))
-        return successors
-
-class Board:
-    def __init__(self, blocks):
-        self.blocks = blocks
-        for i in range(len(blocks[0])):
-            for j in range(len(blocks[0])):
-                if blocks[i][j] == 0:
-                    self.blankSpace = [i, j]
-                    break
-        
-    def moveBlankSpaceLeft(self):
-        newBlocks = deepcopy(self.blocks)
-        newBlocks[self.blankSpace[0]][self.blankSpace[1]] = newBlocks[self.blankSpace[0]][self.blankSpace[1] - 1]
-        newBlocks[self.blankSpace[0]][self.blankSpace[1] - 1] = 0
-        return Board(newBlocks)
-
-    def moveBlankSpaceRight(self):
-        newBlocks = deepcopy(self.blocks)
-        newBlocks[self.blankSpace[0]][self.blankSpace[1]] = newBlocks[self.blankSpace[0]][self.blankSpace[1] + 1]
-        newBlocks[self.blankSpace[0]][self.blankSpace[1] + 1] = 0
-        return Board(newBlocks)
-
-    def moveBlankSpaceUp(self):
-        newBlocks = deepcopy(self.blocks)
-        newBlocks[self.blankSpace[0]][self.blankSpace[1]] = newBlocks[self.blankSpace[0] - 1][self.blankSpace[1]]
-        newBlocks[self.blankSpace[0] - 1][self.blankSpace[1]] = 0
-        return Board(newBlocks)
-
-    def moveBlankSpaceDown(self):
-        newBlocks = deepcopy(self.blocks)
-        newBlocks[self.blankSpace[0]][self.blankSpace[1]] = newBlocks[self.blankSpace[0] + 1][self.blankSpace[1]]
-        newBlocks[self.blankSpace[0] + 1][self.blankSpace[1]] = 0
-        return Board(newBlocks)
-            
+        return ''.join(''.join(map(str, row)) for row in blocks)            
 
 if __name__ == "__main__":
     # do NOT modify below
