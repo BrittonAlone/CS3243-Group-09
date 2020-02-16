@@ -1,6 +1,7 @@
 import os
 import sys
-
+import math
+from datetime import datetime
 
 class Puzzle(object):
     def __init__(self, init_state, goal_state):
@@ -10,12 +11,169 @@ class Puzzle(object):
         self.actions = list()
 
     def solve(self):
-        #TODO
-        # implement your search algorithm here
-        
-        return ["LEFT", "RIGHT"] # sample output 
+        #check if unsolvable
+
+        print("Start A* search with heuristic: Total mismatch")
+        startTime=datetime.now()
+        #initialise with initial state
+        stack = list()
+        #stack keeps a list of nodes [state, moves, fn]
+        stack.append([self.init_state, self.actions, len(self.actions) + puzzle.gethn(self.init_state)])
+        visited = set()
+        max_stack = 1
+
+        #node = 1
+        while len(stack) > 0:
+            #print("Explore nodes:  "+ str(node))
+            if len(stack) > max_stack:
+                max_stack = len(stack)
+            #print(stack)
+            currNode = stack.pop(0)
+            if puzzle.stringifyStates(currNode[0]) in visited:
+                continue
+            visited.add(puzzle.stringifyStates(currNode[0])) #A* graph search
+            #goal state found
+            if currNode[0] == self.goal_state:
+                endTime = datetime.now()
+                print("Goal state found!")
+                print("Move sequence:")
+                print(currNode[1])
+                print("Time taken: " + str((endTime - startTime).total_seconds()) + " seconds.")
+                print("Number of moves: " + str(len(currNode[1])))
+                print("Maximum number of nodes saved: " + str(max_stack) + " nodes.")
+                return currNode[1]
+            successors = puzzle.findSuccessors(currNode)
+            for successor in successors:
+                if puzzle.stringifyStates(successor[0]) in visited:
+                    continue
+                hn = puzzle.gethn(successor[0]) + len(successor[1])
+                successor[2] = hn
+                if len(stack) ==0 or hn >= stack[-1][2]:
+                    stack.append(successor)
+                for i in range(0, len(stack)):
+                    if hn < stack[i][2]:
+                        stack.insert(i, successor)
+                        break
+            #node += 1
 
     # you may add more functions if you think is useful
+    # def gethn(self, state): #heuristic function to be inserted
+    #     n=len(state)
+    #     distance = 0
+    #     i, j = 0, 0
+    #     for i in range(0, n):
+    #         for j in range(0, n):
+    #             if state[i][j] != self.goal_state[i][j]:
+    #                 for x in range(0, n):
+    #                     for y in range(0, n):
+    #                         if self.goal_state[x][y] == state[i][j]:
+    #                             distance += abs(x - i) + abs(y - j)
+
+        # return distance #manhattan distance heurisitic
+
+    def gethn(self, state): #heuristic function to be inserted
+        n=len(state)
+        mismatches = 0
+        i, j = 0, 0
+        for i in range(0, n):
+            for j in range(0, n):
+                if state[i][j] != self.goal_state[i][j]:
+                    mismatches += 1
+        return mismatches #total mismatch heurisitic
+
+    #find the next valid moves
+    def findSuccessors(self, node):
+        successors = []
+        blankSpace = puzzle.findBlankSpace(node[0])
+        if blankSpace[0] != len(node[0]) - 1:
+            successors.append(puzzle.slideUp(node))
+        if blankSpace[0] != 0:
+            successors.append(puzzle.slideDown(node))
+        if blankSpace[1] != len(node[0]) - 1:
+            successors.append(puzzle.slideLeft(node))
+        if blankSpace[1] != 0:
+            successors.append(puzzle.slideRight(node))
+        return successors
+
+    #input the 2d array of state to find the zero tile
+    def findBlankSpace(self, state):
+        for i in range(len(state[0])):
+            for j in range(len(state[0])):
+                if state[i][j] == 0:
+                    return [i, j]
+
+    def slideUp(self, node):
+        state = node[0]
+        n = len(node[0])
+        blankSpace = puzzle.findBlankSpace(state)
+        moves = []
+        for move in node[1]:
+            moves.append(move)
+        moves.append("UP")
+        newState = [[0 for i in range(n)] for j in range(n)]
+        i, j = 0, 0
+        for i in range(n):
+            for j in range(n):
+                newState[i][j] = state[i][j]
+        newState[blankSpace[0]][blankSpace[1]] = newState[blankSpace[0] + 1][blankSpace[1]]
+        newState[blankSpace[0] + 1][blankSpace[1]] = 0
+        return [newState, moves, node[2]]
+
+    def slideDown(self, node):
+        state = node[0]
+        n = len(node[0])
+        blankSpace = puzzle.findBlankSpace(state)
+        moves = []
+        for move in node[1]:
+            moves.append(move)
+        moves.append("DOWN")
+        newState = [[0 for i in range(n)] for j in range(n)]
+        i, j = 0, 0
+        for i in range(n):
+            for j in range(n):
+                newState[i][j] = state[i][j]
+        newState[blankSpace[0]][blankSpace[1]] = newState[blankSpace[0] - 1][blankSpace[1]]
+        newState[blankSpace[0] - 1][blankSpace[1]] = 0
+        return [newState, moves, node[2]]
+
+    def slideLeft(self, node):
+        state = node[0]
+        n = len(node[0])
+        blankSpace = puzzle.findBlankSpace(state)
+        moves = []
+        for move in node[1]:
+            moves.append(move)
+        moves.append("LEFT")
+        newState = [[0 for i in range(n)] for j in range(n)]
+        i, j = 0, 0
+        for i in range(n):
+            for j in range(n):
+                newState[i][j] = state[i][j]
+        newState[blankSpace[0]][blankSpace[1]] = newState[blankSpace[0]][blankSpace[1] + 1]
+        newState[blankSpace[0]][blankSpace[1] + 1] = 0
+        return [newState, moves, node[2]]
+
+    def slideRight(self, node):
+        state = node[0]
+        n = len(node[0])
+        blankSpace = puzzle.findBlankSpace(state)
+        moves = []
+        for move in node[1]:
+            moves.append(move)
+        moves.append("RIGHT")
+        newState = [[0 for i in range(n)] for j in range(n)]
+        i, j = 0, 0
+        for i in range(n):
+            for j in range(n):
+                newState[i][j] = state[i][j]
+        newState[blankSpace[0]][blankSpace[1]] = newState[blankSpace[0]][blankSpace[1] - 1]
+        newState[blankSpace[0]][blankSpace[1] - 1] = 0
+        return [newState, moves, node[2]]
+
+    # hashing the 2D array of states
+    def stringifyStates(self, state):
+        return ''.join(''.join(map(str, row)) for row in state)
+
 
 if __name__ == "__main__":
     # do NOT modify below
@@ -32,7 +190,7 @@ if __name__ == "__main__":
         raise IOError("Input file not found!")
 
     lines = f.readlines()
-    
+
     # n = num rows in input file
     n = len(lines)
     # max_num = n to the power of 2 - 1
@@ -41,7 +199,7 @@ if __name__ == "__main__":
     # Instantiate a 2D list of size n x n
     init_state = [[0 for i in range(n)] for j in range(n)]
     goal_state = [[0 for i in range(n)] for j in range(n)]
-    
+
 
     i,j = 0, 0
     for line in lines:
@@ -66,10 +224,3 @@ if __name__ == "__main__":
     with open(sys.argv[2], 'a') as f:
         for answer in ans:
             f.write(answer+'\n')
-
-
-
-
-
-
-
