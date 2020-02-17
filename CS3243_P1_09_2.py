@@ -50,6 +50,7 @@ class Puzzle(object):
                 successor[2] = hn
                 if len(stack) ==0 or hn >= stack[-1][2]:
                     stack.append(successor)
+                    continue
                 for i in range(0, len(stack)):
                     if hn < stack[i][2]:
                         stack.insert(i, successor)
