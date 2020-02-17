@@ -71,6 +71,58 @@ class Puzzle(object):
     #                             distance += abs(x - i) + abs(y - j)
 
         # return distance #manhattan distance heurisitic
+    def find_position(self, number, state):#return pisition of number in current state
+        n = len(state)
+        i, j = 0, 0
+        for i in range(0, n):
+            for j in range(0, n):
+                if number == state[i][j]:
+                    return i, j
+
+
+    def heuristic2(self, state):
+        n = len(state)
+        Manhattan_D = 0
+        i, j = 0, 0
+        for i in range(0, n):
+            for j in range(0, n):
+                target = self.goal_state[i][j]
+                p, q = find_position(self, target, state)
+                Manhattan_D += abs(p - i) + abs(q - j)
+        return Manhattan_D
+
+    def swap(a, b):
+        temp = a
+        a = b
+        b = temp
+
+    def find_mismatch(self, state):#return the first mismatch square, if all match, return false
+        n = len(state)
+        i, j = 0, 0
+        for i in range(0, n):
+            for j in range(0, n):
+                if state[i][j] != 0 && state[i][j] != self.goal_state[i][j]:
+                    return i, j
+        return -1, -1
+
+    def heuristic3(self, state):
+        n = len(state)
+        steps, blank = 0, 0
+        mismatch_i, mismatch_j = find_mismatch(self, state)
+        while mismatch_i, mismatch_j != -1, -1:
+            blank_i, blank_j = find_position(self, blank, state)
+            if blank_i, blank_j != (n - 1), (n - 1):
+                target = self.goal_state[blank_i][blank_j]
+                target_i, target_j = find_position(self, target, state)
+                swap(state[blank_i][blank_j], state[target_j][target_j])
+                steps += 1
+                mismatch_i, mismatch_j = find_mismatch(self, state)
+            else:
+                swap(state[blank_i][blank_j], state[mismatch_i][mismatch_j])
+                steps += 1
+                mismatch_i, mismatch_j = find_mismatch(self, state)
+        return steps
+
 
     def gethn(self, state): #heuristic function to be inserted
         n=len(state)
