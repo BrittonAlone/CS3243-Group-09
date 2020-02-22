@@ -39,7 +39,9 @@ class Puzzle(object):
                 print("Goal state found!")
                 print("Move sequence:")
                 print(currNode[2])
-                print("Time taken: " + str((endTime - startTime).total_seconds()) + " seconds.")
+                delta = endTime - startTime
+                print("Time taken: " + str(delta.seconds) + "."
+                + str(delta.microseconds) + " seconds.")
                 print("Number of moves: " + str(len(currNode[2])))
                 print("Maximum number of nodes saved: " + str(max_stack) + " nodes.")
                 return currNode[2]
