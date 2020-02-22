@@ -30,9 +30,9 @@ class Puzzle(object):
                 max_stack = stack.qsize()
             #print(stack)
             currNode = stack.get()
-            if puzzle.stringifyStates(currNode[1]) in visited:
+            if puzzle.tuplifyStates(currNode[1]) in visited:
                 continue
-            visited.add(puzzle.stringifyStates(currNode[1])) #A* graph search
+            visited.add(puzzle.tuplifyStates(currNode[1])) #A* graph search
             #goal state found
             if currNode[1] == self.goal_state:
                 endTime = datetime.now()
@@ -43,11 +43,12 @@ class Puzzle(object):
                 print("Time taken: " + str(delta.seconds) + "."
                 + str(delta.microseconds) + " seconds.")
                 print("Number of moves: " + str(len(currNode[2])))
+                print("Number of nodes visited: " + str(len(visited)))
                 print("Maximum number of nodes saved: " + str(max_stack) + " nodes.")
                 return currNode[2]
             successors = puzzle.findSuccessors(currNode)
             for successor in successors:
-                if puzzle.stringifyStates(successor[1]) in visited:
+                if puzzle.tuplifyStates(successor[1]) in visited:
                     continue
                 hn = puzzle.gethn(successor[1]) + len(successor[2])
                 successor[0] = hn
@@ -227,6 +228,8 @@ class Puzzle(object):
     def stringifyStates(self, state):
         return ''.join(''.join(map(str, row)) for row in state)
 
+    def tuplifyStates(self, state):
+        return tuple(map(tuple, state))
 
 if __name__ == "__main__":
     # do NOT modify below
