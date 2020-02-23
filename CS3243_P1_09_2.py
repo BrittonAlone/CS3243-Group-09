@@ -107,7 +107,11 @@ class Puzzle(object):
 
     def heuristic3(self, state):
         n = len(state)
-        temp_state = state
+        temp_state = [[0 for i in range(n)] for j in range(n)]
+        i, j = 0, 0
+        for i in range(0,n):
+            for j in range(0,n):
+                temp_state[i][j] = state[i][j]        
         steps, blank = 0, 0
         mismatch_i, mismatch_j = find_mismatch(self, state)
         while (mismatch_i, mismatch_j) != (-1, -1):
@@ -122,7 +126,10 @@ class Puzzle(object):
                 swap(state[blank_i][blank_j], state[mismatch_i][mismatch_j])
                 steps += 1
                 mismatch_i, mismatch_j = find_mismatch(self, state)
-        state = temp_state
+        i, j = 0, 0
+        for i in range(0, n):
+            for j in range(0, n):
+                state[i][j] = temp_state[i][j]
         return steps
 
 
