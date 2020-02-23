@@ -20,22 +20,22 @@ class Puzzle(object):
         if state.board.blankSpace[1] != 0:
             newBoard = self.moveBlankSpaceLeft(state.board)
             newMoves = list(state.moves)
-            newMoves.append("LEFT")
+            newMoves.append("RIGHT")
             successors.append(self.State(newBoard, newMoves))
         if state.board.blankSpace[1] != len(state.board.blocks[0]) - 1:
             newBoard = self.moveBlankSpaceRight(state.board)
             newMoves = list(state.moves)
-            newMoves.append("RIGHT")
+            newMoves.append("LEFT")
             successors.append(self.State(newBoard, newMoves))
         if state.board.blankSpace[0] != 0:
             newBoard = self.moveBlankSpaceUp(state.board)
             newMoves = list(state.moves)
-            newMoves.append("UP")
+            newMoves.append("DOWN")
             successors.append(self.State(newBoard, newMoves))
         if state.board.blankSpace[0] != len(state.board.blocks[0]) - 1:
             newBoard = self.moveBlankSpaceDown(state.board)
             newMoves = list(state.moves)
-            newMoves.append("DOWN")
+            newMoves.append("UP")
             successors.append(self.State(newBoard, newMoves))
         return successors
 
