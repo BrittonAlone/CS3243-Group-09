@@ -61,30 +61,13 @@ class Puzzle(object):
 
     # you may add more functions if you think is useful
 
-    def find_position(self, number, state):#return pisition of number in current state
+    def find_position(self, number, state):
         n = len(state)
         i, j = 0, 0
         for i in range(0, n):
             for j in range(0, n):
                 if number == state[i][j]:
                     return i, j
-
-
-    def heuristic2(self, state):
-        n = len(state)
-        Manhattan_D = 0
-        i, j = 0, 0
-        for i in range(0, n):
-            for j in range(0, n):
-                target = self.goal_state[i][j]
-                p, q = find_position(self, target, state)
-                Manhattan_D += abs(p - i) + abs(q - j)
-        return Manhattan_D
-
-    def swap(a, b):
-        temp = a
-        a = b
-        b = temp
 
     def find_mismatch(self, state):#return the first mismatch square, if all match, return false
         n = len(state)
@@ -104,19 +87,23 @@ class Puzzle(object):
             for j in range(0,n):
                 temp_state[i][j] = state[i][j]
         steps, blank = 0, 0
-        mismatch_i, mismatch_j = find_mismatch(self, state)
+        mismatch_i, mismatch_j = self.find_mismatch(state)
         while (mismatch_i, mismatch_j) != (-1, -1):
-            blank_i, blank_j = find_position(self, blank, state)
+            blank_i, blank_j = self.find_position(blank, state)
             if (blank_i, blank_j) != ((n - 1), (n - 1)):
                 target = self.goal_state[blank_i][blank_j]
-                target_i, target_j = find_position(self, target, state)
-                swap(state[blank_i][blank_j], state[target_j][target_j])
+                target_i, target_j = self.find_position(target, state)
+                temp = state[blank_i][blank_j]
+                state[blank_i][blank_j] = state[target_i][target_j]
+                state[target_i][target_j] = temp
                 steps += 1
-                mismatch_i, mismatch_j = find_mismatch(self, state)
+                mismatch_i, mismatch_j = self.find_mismatch(state)
             else:
-                swap(state[blank_i][blank_j], state[mismatch_i][mismatch_j])
+                temp = state[blank_i][blank_j]
+                state[blank_i][blank_j] = state[mismatch_i][mismatch_j]
+                state[mismatch_i][mismatch_j] = temp
                 steps += 1
-                mismatch_i, mismatch_j = find_mismatch(self, state)
+                mismatch_i, mismatch_j = self.find_mismatch(state)
         i, j = 0, 0
         for i in range(0, n):
             for j in range(0, n):
