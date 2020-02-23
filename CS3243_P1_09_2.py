@@ -10,6 +10,10 @@ class Puzzle(object):
         self.init_state = init_state
         self.goal_state = goal_state
         self.actions = list()
+        self. goal_position = {}
+        for x, row in enumerate(goal_state):
+            for y, num in enumerate(row):
+                self.goal_position[num] = (x, y)
 
     def solve(self):
         #check if unsolvable
@@ -44,7 +48,7 @@ class Puzzle(object):
                 + str(delta.microseconds) + " seconds.")
                 print("Number of moves: " + str(len(currNode[2])))
                 print("Number of nodes visited: " + str(len(visited)))
-                print("Maximum number of nodes saved: " + str(max_stack) + " nodes.")
+                print("Maximum number of nodes in the queue: " + str(max_stack) + " nodes.")
                 return currNode[2]
             successors = puzzle.findSuccessors(currNode)
             for successor in successors:
@@ -57,16 +61,13 @@ class Puzzle(object):
 
     # you may add more functions if you think is useful
     def gethn(self, state): #heuristic function to be inserted
-        n=len(state)
         distance = 0
-        i, j = 0, 0
-        for i in range(0, n):
-            for j in range(0, n):
-                if state[i][j] != self.goal_state[i][j]:
-                    for x in range(0, n):
-                        for y in range(0, n):
-                            if self.goal_state[x][y] == state[i][j]:
-                                distance += abs(x - i) + abs(y - j)
+        for x, row in enumerate(state):
+            for y, num in enumerate(row):
+                if num == 0:
+                    continue
+                distance += abs(self.goal_position[num][0] - x) + \
+                abs(self.goal_position[num][1] - y)
 
         return distance #manhattan distance heurisitic
 
