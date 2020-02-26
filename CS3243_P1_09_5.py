@@ -40,7 +40,7 @@ def isEven(n):
 	return n % 2 == 0
 
 def checkSmallerAfter(arr, i):
-	arrLen = len(arr);
+	arrLen = len(arr)
 	check = int(arr[i])
 	count = 0
 	for x in range(i, arrLen):
