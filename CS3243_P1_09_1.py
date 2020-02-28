@@ -81,53 +81,16 @@ class Puzzle(object):
         print("Starting IDS.")
         startTime = datetime.now()
         depth = 3
-        while True: # outer loop that repeats for each depth
-            print("Trying depth " + str(depth) + "...")
-
-            # initialise stack with initial state
-            stack = deque()
-            stack.append(self.State(self.Board(init_state), []))
-
-            visited = set() # set of explored block layouts
-
-            while len(stack) > 0:
-                currState = stack.pop()
-                if self.stringifyBlocks(currState.board.blocks) in visited:
-                    continue
-                visited.add(self.stringifyBlocks(currState.board.blocks))
-                if len(currState.moves) == depth: # maximum depth reached for path
-                    continue
-                successors = self.findSuccessors(currState)
-                for successor in successors:
-                    if successor.board.blocks == self.goal_state:
-                        # goal state found
-                        endTime = datetime.now()
-                        print("Goal state found!")
-                        print("Move sequence:")
-                        print(successor.moves)
-                        delta = endTime - startTime
-                        print("Time taken: " + str(delta.seconds) + "." 
-                        + str(delta.microseconds) + " seconds.")
-                        return successor.moves
-                    stack.append(successor)
-
-            depth += 1 # increment depth limit and try again
-
-    def solve_with_statistics(self):
-        if self.init_state == self.goal_state:
-            print("Initial and goal states are identical!")
-            return []
-        # Iterative Depth Search (IDS)
-        # start with depth of 3
-        print("Starting IDS.")
-        startTime = datetime.now()
-        depth = 3
         maxSize = 0
         while True: # outer loop that repeats for each depth
             if depth == 40:
                 # terminate due to excessive runtime
-                return (False, None, maxSize, datetime.now() - startTime)
-            print("Trying depth " + str(depth) + "...")
+                self.solvable = False
+                self.maxSize = maxSize
+                self.solutionDepth = len(successor.moves)
+                self.runtime = datetime.now() - startTime
+                return None
+            #print("Trying depth " + str(depth) + "...")
 
             # initialise stack with initial state
             stack = deque()
@@ -155,7 +118,11 @@ class Puzzle(object):
                         delta = endTime - startTime
                         print("Time taken: " + str(delta.seconds) + "." 
                         + str(delta.microseconds) + " seconds.")
-                        return (True, len(successor.moves), maxSize, delta)
+                        self.solvable = True
+                        self.maxSize = maxSize
+                        self.solutionDepth = len(successor.moves)
+                        self.runtime = delta
+                        return (successor.moves)
                     stack.append(successor)
 
             depth += 1 # increment depth limit and try again          

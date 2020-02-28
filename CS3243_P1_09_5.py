@@ -4,24 +4,28 @@ import getopt
 from datetime import datetime, timedelta
 
 ### Change import source for different algorithms
-from CS3243_P1_09_1 import Puzzle
+from CS3243_P1_09_1 import Puzzle as PuzzleIDS
+#from CS3243_P1_09_2 import Puzzle as PuzzleOOP
+#from CS3243_P1_09_3 import Puzzle as PuzzleMHT
+#from CS3243_P1_09_4 import Puzzle as PuzzleSWP
 
 sampleSize = 3
 n = 3
-file = "test.out"
+file1 = "exp1.out"
+file2 = "exp2.out"
+file3 = "exp3.out"
+file4 = "exp4.out"
 
 try:
-  opts, args = getopt.getopt(sys.argv[1:],"s:n:o:")
+  opts, args = getopt.getopt(sys.argv[1:],"s:n:")
   for opt, arg in opts:
     if opt == '-s':
       sampleSize = int(arg)
     elif opt == "-n":
       n = int(arg)
-    elif opt == "-o":
-      file = arg
     
 except:
-  print('usage: CS3243_P1_09_5.py [-s <sample size> -n <puzzle size> -o <output file>')
+  print('usage: python CS3243_P1_09_5.py [-s <sample size> -n <puzzle size>')
   sys.exit(1)
 
 goalState = [[0 for i in range(n)] for j in range(n)]
@@ -78,10 +82,23 @@ def solvable(state):
 		return isEven(count)
 
 run = 1
-totalSpace, totalSolved, totalUnsolved = 0, 0, 0
-totalRuntime = timedelta(0)
 
-outfile = open(sys.argv[1], 'a')
+#puzzleClasses = [PuzzleIDS, PuzzleOOP, PuzzleMHT, PuzzleSWP]
+puzzleClasses = [PuzzleIDS]
+outfiles = [
+    open(file1, 'a'),
+    open(file2, 'a'),
+    open(file3, 'a'),
+    open(file4, 'a'),
+]
+
+# record statistics for each algorithm
+stats = [{} for i in range(len(puzzleClasses))]
+for s in stats:
+    s["solved"] = 0
+    s["unsolved"] = 0
+    s["runtime"] = timedelta(0)
+    s["space"] = 0
 
 while run <= sampleSize:
   
@@ -96,34 +113,42 @@ while run <= sampleSize:
   if not solvable(blocks):
     continue # generate another board and try again
 
-  ### Run algorithm
-  puzzle = Puzzle(blocks, goalState)
-  solved, depth, space, delta = puzzle.solve_with_statistics()
+  for i in range(len(puzzleClasses)):
+    ### Run algorithm
+    puzzle = puzzleClasses[i](blocks, goalState)
+    puzzle.solve()
+    solved = puzzle.solvable
+    depth = puzzle.solutionDepth
+    space = puzzle.maxSize
+    delta = puzzle.runtime
 
-  print("Solved: " + str(solved))
-  if solved:
+    '''print("Solved: " + str(solved))
+    if solved:
       print("Depth: " + str(depth))
-  print("Space: " + str(space))
-  print("Time: " + str(delta.seconds))
-  totalSpace += space
-  totalRuntime += delta
-  if solved:
-      totalSolved += 1
-  else:
-      totalUnsolved += 1
+    print("Space: " + str(space))
+    print("Time: " + str(delta.seconds))'''
+    stats[i]["space"] += space
+    stats[i]["runtime"] += delta
+    if solved:
+      stats[i]["solved"] += 1
+    else:
+      stats[i]["unsolved"] += 1
 
-  outfile.write(str(depth) + "," + str(space) + "," + str(delta.seconds) + "\n")
+    outfiles[i].write(str(depth) + "," + str(space) + "," + str(delta.seconds) + "\n")
+  
   run += 1
 
-avgSpace = float(totalSpace) / sampleSize
-avgRuntime = (totalRuntime.seconds + (totalRuntime.microseconds / 1000000)) / sampleSize
-print("Average queue/stack size: " + str(avgSpace))
-print("Average runtime: " + str(avgRuntime))
-print("Total solved puzzles: " + str(totalSolved))
-print("Total unsolved puzzles: " + str(totalUnsolved))
-outfile.write("Average queue/stack size: " + str(avgSpace))
-outfile.write("Average runtime: " + str(avgRuntime))
-outfile.write("Total solved puzzles: " + str(totalSolved))
-outfile.write("Total unsolved puzzles: " + str(totalUnsolved))
-outfile.write("\n")
-outfile.close()
+for i in range(len(puzzleClasses)):
+    avgSpace = float(stats[i]["space"]) / sampleSize
+    avgRuntime = (stats[i]["runtime"].seconds + (stats[i]["runtime"].microseconds / 1000000)) / sampleSize
+    '''print("Average queue/stack size: " + str(avgSpace))
+    print("Average runtime: " + str(avgRuntime))
+    print("Total solved puzzles: " + str(totalSolved))
+    print("Total unsolved puzzles: " + str(totalUnsolved))'''
+    outfiles[i].write("Average queue/stack size: " + str(avgSpace) + "\n")
+    outfiles[i].write("Average runtime: " + str(avgRuntime) + "\n")
+    outfiles[i].write("Total solved puzzles: " + str(stats[i]["solved"]) + "\n")
+    outfiles[i].write("Total unsolved puzzles: " + str(stats[i]["unsolved"]) + "\n")
+
+for outfile in outfiles:
+    outfile.close()
