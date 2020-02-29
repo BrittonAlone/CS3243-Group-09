@@ -26,6 +26,7 @@ class Puzzle(object):
         stack.put([len(self.actions) + puzzle.gethn(self.init_state), self.init_state, self.actions])
         visited = set()
         max_stack = 1
+        explored = 1
 
         #node = 1
         while stack.qsize() > 0:
@@ -47,7 +48,8 @@ class Puzzle(object):
                 print("Time taken: " + str(delta.seconds) + "."
                 + str(delta.microseconds) + " seconds.")
                 print("Number of moves: " + str(len(currNode[2])))
-                print("Number of nodes visited: " + str(len(visited)))
+                print("Number of nodes expanded: " + str(len(visited)))
+                print("Number of nodes explored: " + str(explored))
                 print("Maximum number of nodes in the queue: " + str(max_stack) + " nodes.")
                 return currNode[2]
             successors = puzzle.findSuccessors(currNode)
@@ -57,7 +59,7 @@ class Puzzle(object):
                 hn = puzzle.gethn(successor[1]) + len(successor[2])
                 successor[0] = hn
                 stack.put(successor)
-            #node += 1
+                explored += 1
 
     # you may add more functions if you think is useful
 

@@ -17,6 +17,9 @@ class Puzzle(object):
 
     def solve(self):
         #check if unsolvable
+        if not self.solvable(self.init_state):
+            print("UNSOLVABLE")
+            return ["UNSOLVABLE"]
 
         print("Start A* search with heuristic: Manhattan")
         startTime=datetime.now()
@@ -26,6 +29,7 @@ class Puzzle(object):
         stack.put([len(self.actions) + puzzle.gethn(self.init_state), self.init_state, self.actions])
         visited = set()
         max_stack = 1
+        explored = 1
 
         #node = 1
         while stack.qsize() > 0:
@@ -47,7 +51,8 @@ class Puzzle(object):
                 print("Time taken: " + str(delta.seconds) + "."
                 + str(delta.microseconds) + " seconds.")
                 print("Number of moves: " + str(len(currNode[2])))
-                print("Number of nodes visited: " + str(len(visited)))
+                print("Number of nodes expanded: " + str(len(visited)))
+                print("Number of nodes explored: " + str(explored))
                 print("Maximum number of nodes in the queue: " + str(max_stack) + " nodes.")
                 return currNode[2]
             successors = puzzle.findSuccessors(currNode)
@@ -57,7 +62,7 @@ class Puzzle(object):
                 hn = puzzle.gethn(successor[1]) + len(successor[2])
                 successor[0] = hn
                 stack.put(successor)
-            #node += 1
+                explored += 1
 
     # you may add more functions if you think is useful
 
@@ -73,66 +78,46 @@ class Puzzle(object):
 
         return distance #manhattan distance heurisitic
 
-    def find_position(self, number, state):#return pisition of number in current state
-        n = len(state)
-        i, j = 0, 0
-        for i in range(0, n):
-            for j in range(0, n):
-                if number == state[i][j]:
-                    return i, j
+    def isEven(self, n):
+    	return n % 2 == 0
+
+    def checkSmallerAfter(self, arr, i):
+    	arrLen = len(arr)
+    	check = int(arr[i])
+    	count = 0
+    	for x in range(i, arrLen):
+    		if (int(arr[x]) < check):
+    			count = count + 1
+
+    	return count
+
+    def solvable(self, state):
+    	# Solvable if linearly adds up to an even number
+    	# arr is a 2D array
+    	arrLen = len(state)
+    	arrStore = []
+
+    	for arrH in state:
+    		for arrV in arrH:
+    			arrStore.append(arrV)
+
+    	arrStoreLen = len(arrStore)
+
+    	count = 0
+    	for i in range(arrStoreLen):
+    		count = count + self.checkSmallerAfter(arrStore, i)
+
+    	if self.isEven(arrLen):
+    		[r, c] = self.findBlankSpace(state)
+    		countFromBottom = arrLen - r + 1
+    		if self.isEven(countFromBottom):
+    			return not self.isEven(count)
+    		else:
+    			return self.isEven(count)
 
 
-    def heuristic2(self, state):
-        n = len(state)
-        Manhattan_D = 0
-        i, j = 0, 0
-        for i in range(0, n):
-            for j in range(0, n):
-                target = self.goal_state[i][j]
-                p, q = find_position(self, target, state)
-                Manhattan_D += abs(p - i) + abs(q - j)
-        return Manhattan_D
-
-    def swap(a, b):
-        temp = a
-        a = b
-        b = temp
-
-    def find_mismatch(self, state):#return the first mismatch square, if all match, return false
-        n = len(state)
-        i, j = 0, 0
-        for i in range(0, n):
-            for j in range(0, n):
-                if state[i][j] != 0 and state[i][j] != self.goal_state[i][j]:
-                    return i, j
-        return -1, -1
-
-    def heuristic3(self, state):
-        n = len(state)
-        temp_state = [[0 for i in range(n)] for j in range(n)]
-        i, j = 0, 0
-        for i in range(0,n):
-            for j in range(0,n):
-                temp_state[i][j] = state[i][j]
-        steps, blank = 0, 0
-        mismatch_i, mismatch_j = find_mismatch(self, state)
-        while (mismatch_i, mismatch_j) != (-1, -1):
-            blank_i, blank_j = find_position(self, blank, state)
-            if (blank_i, blank_j) != ((n - 1), (n - 1)):
-                target = self.goal_state[blank_i][blank_j]
-                target_i, target_j = find_position(self, target, state)
-                swap(state[blank_i][blank_j], state[target_j][target_j])
-                steps += 1
-                mismatch_i, mismatch_j = find_mismatch(self, state)
-            else:
-                swap(state[blank_i][blank_j], state[mismatch_i][mismatch_j])
-                steps += 1
-                mismatch_i, mismatch_j = find_mismatch(self, state)
-        i, j = 0, 0
-        for i in range(0, n):
-            for j in range(0, n):
-                state[i][j] = temp_state[i][j]
-        return steps
+    	else:
+    		return self.isEven(count)
 
     #find the next valid moves
     def findSuccessors(self, node):
