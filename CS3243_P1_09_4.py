@@ -69,45 +69,47 @@ class Puzzle(object):
                 if number == state[i][j]:
                     return i, j
 
-    def find_mismatch(self, state):#return the first mismatch square, if all match, return false
-        n = len(state)
-        i, j = 0, 0
-        for i in range(0, n):
-            for j in range(0, n):
-                if state[i][j] != 0 and state[i][j] != self.goal_state[i][j]:
-                    return i, j
-        return -1, -1
 
     """Number of Swaps Heuristic"""
     def gethn(self, state):
         n = len(state)
-        temp_state = [[0 for i in range(n)] for j in range(n)]
-        i, j = 0, 0
-        for i in range(0,n):
-            for j in range(0,n):
-                temp_state[i][j] = state[i][j]
-        steps, blank = 0, 0
-        mismatch_i, mismatch_j = self.find_mismatch(state)
-        while (mismatch_i, mismatch_j) != (-1, -1):
-            blank_i, blank_j = self.find_position(blank, state)
-            if (blank_i, blank_j) != ((n - 1), (n - 1)):
-                target = self.goal_state[blank_i][blank_j]
-                target_i, target_j = self.find_position(target, state)
-                temp = state[blank_i][blank_j]
-                state[blank_i][blank_j] = state[target_i][target_j]
-                state[target_i][target_j] = temp
-                steps += 1
-                mismatch_i, mismatch_j = self.find_mismatch(state)
-            else:
-                temp = state[blank_i][blank_j]
-                state[blank_i][blank_j] = state[mismatch_i][mismatch_j]
-                state[mismatch_i][mismatch_j] = temp
-                steps += 1
-                mismatch_i, mismatch_j = self.find_mismatch(state)
+        steps = 0
+        mismatch_dic = {}
+        reverse_mismatch_dic = {}
         i, j = 0, 0
         for i in range(0, n):
             for j in range(0, n):
-                state[i][j] = temp_state[i][j]
+                current = state[i][j] 
+                print current
+                key = n * i + j + 1
+                if key == n * n:
+                    key = 0
+                if current != self.goal_state[i][j]:
+                    mismatch_dic[key] = current
+                    reverse_mismatch_dic[current] = key
+                if current == 0 and key == 0:
+                    mismatch_dic[0] = 0
+                    reverse_mismatch_dic[0] = 0
+        while len(mismatch_dic) != 0:
+            if len(mismatch_dic) == 1:
+                break
+            if mismatch_dic[0] == 0:
+                mismatch_dic.pop(0)
+                temp = mismatch_dic.popitem()
+                mismatch_dic[0] = 0
+                mismatch_dic[temp[0]] = temp[1]
+                mismatch_dic[0] = temp[1]
+                mismatch_dic[temp[0]] = 0
+                reverse_mismatch_dic[temp[1]] = 0
+                reverse_mismatch_dic[0] = temp[0]
+                steps += 1
+                continue
+            blank_current = reverse_mismatch_dic[0]
+            blank_next = reverse_mismatch_dic[blank_current]
+            mismatch_dic[blank_next] = 0
+            reverse_mismatch_dic[0] = blank_next
+            mismatch_dic.pop(blank_current)
+            steps += 1
         return steps
 
     #find the next valid moves
