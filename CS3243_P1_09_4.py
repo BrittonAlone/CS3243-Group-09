@@ -129,45 +129,45 @@ class Puzzle(object):
 
     #Solvability check
     def isEven(self, n):
-    	return n % 2 == 0
+        return n % 2 == 0
 
     def checkSmallerAfter(self, arr, i):
-    	arrLen = len(arr)
-    	check = int(arr[i])
-    	count = 0
-    	for x in range(i, arrLen):
-    		if (int(arr[x]) < check):
-    			count = count + 1
+        arrLen = len(arr)
+        check = int(arr[i])
+        count = 0
+        for x in range(i, arrLen):
+            if (int(arr[x]) < check)  and int(arr[x]):
+                count = count + 1
 
-    	return count
+        return count
 
     def isSolvable(self, state):
-    	# Solvable if linearly adds up to an even number
-    	# arr is a 2D array
-    	arrLen = len(state)
-    	arrStore = []
+        # Solvable if linearly adds up to an even number
+        # arr is a 2D array
+        arrLen = len(state)
+        arrStore = []
 
-    	for arrH in state:
-    		for arrV in arrH:
-    			arrStore.append(arrV)
+        for arrH in state:
+            for arrV in arrH:
+                arrStore.append(arrV)
 
-    	arrStoreLen = len(arrStore)
+        arrStoreLen = len(arrStore)
 
-    	count = 0
-    	for i in range(arrStoreLen):
-    		count = count + self.checkSmallerAfter(arrStore, i)
+        count = 0
+        for i in range(arrStoreLen):
+            count = count + self.checkSmallerAfter(arrStore, i)
 
-    	if self.isEven(arrLen):
-    		[r, c] = self.findBlankSpace(state)
-    		countFromBottom = arrLen - r
-    		if self.isEven(countFromBottom):
-    			return not self.isEven(count)
-    		else:
-    			return self.isEven(count)
+        if self.isEven(arrLen):
+            [r, c] = self.findBlankSpace(state)
+            countFromBottom = arrLen - r
+            if self.isEven(countFromBottom):
+                return not self.isEven(count)
+            else:
+                return self.isEven(count)
 
 
-    	else:
-    		return self.isEven(count)
+        else:
+            return self.isEven(count)
 
     #find the next valid moves
     def findSuccessors(self, node):

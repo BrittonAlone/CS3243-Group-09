@@ -3,7 +3,7 @@ import sys
 import math
 import gc
 from datetime import datetime
-from queue import PriorityQueue
+from Queue import PriorityQueue
 
 class Puzzle(object):
     def __init__(self, init_state, goal_state):
