@@ -17,6 +17,9 @@ class Puzzle(object):
 
     def solve(self):
         #check if unsolvable
+        if not self.solvable(self.init_state):
+            print("UNSOLVABLE")
+            return ["UNSOLVABLE"]
 
         print("Start A* search with heuristic: Tiles out of place")
         startTime=datetime.now()
@@ -70,6 +73,49 @@ class Puzzle(object):
                 if state[i][j] != self.goal_state[i][j]:
                     mismatches += 1
         return mismatches #tile out of place heurisitic
+
+    #Solvability check
+    def isEven(self, n):
+    	return n % 2 == 0
+
+    def checkSmallerAfter(self, arr, i):
+    	arrLen = len(arr)
+    	check = int(arr[i])
+    	count = 0
+    	for x in range(i, arrLen):
+    		if (int(arr[x]) < check):
+    			count = count + 1
+
+    	return count
+
+    def solvable(self, state):
+    	# Solvable if linearly adds up to an even number
+    	# arr is a 2D array
+    	arrLen = len(state)
+    	arrStore = []
+
+    	for arrH in state:
+    		for arrV in arrH:
+    			arrStore.append(arrV)
+
+    	arrStoreLen = len(arrStore)
+
+    	count = 0
+    	for i in range(arrStoreLen):
+    		count = count + self.checkSmallerAfter(arrStore, i)
+
+    	if self.isEven(arrLen):
+    		[r, c] = self.findBlankSpace(state)
+    		countFromBottom = arrLen - r
+    		if self.isEven(countFromBottom):
+    			return not self.isEven(count)
+    		else:
+    			return self.isEven(count)
+
+
+    	else:
+    		return self.isEven(count)
+
 
     #find the next valid moves
     def findSuccessors(self, node):

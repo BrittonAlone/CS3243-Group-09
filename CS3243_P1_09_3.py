@@ -78,6 +78,7 @@ class Puzzle(object):
 
         return distance #manhattan distance heurisitic
 
+    #Solvability check
     def isEven(self, n):
     	return n % 2 == 0
 
