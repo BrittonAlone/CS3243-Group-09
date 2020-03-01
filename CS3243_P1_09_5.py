@@ -34,24 +34,24 @@ for i in range(1, n**2):
     goalState[n - 1][n - 1] = 0
 
 def findBlankSpace(state):
-	for i in range(len(state[0])):
-		for j in range(len(state[0])):
-			if state[i][j] == 0:
-				return [i, j]
+    for i in range(len(state[0])):
+        for j in range(len(state[0])):
+            if state[i][j] == 0:
+		return [i, j]
 
 
 def isEven(n):
-	return n % 2 == 0
+    return n %2 == 0
 
 def checkSmallerAfter(arr, i):
-	arrLen = len(arr)
-	check = int(arr[i])
-	count = 0
-	for x in range(i, arrLen):
-		if (int(arr[x]) < check):
-			count = count + 1
+    arrLen = len(arr)
+    check = int(arr[i])
+    count = 0
+    for x in range(i, arrLen):
+        if (int(arr[x]) < check):
+	    count = count + 1
 
-	return count
+    return count
 
 def solvable(state):
 	# Solvable if linearly adds up to an even number
@@ -69,9 +69,11 @@ def solvable(state):
 	for i in range(arrStoreLen):
 		count = count + checkSmallerAfter(arrStore, i)
 
+	print(count)
+
 	if isEven(arrLen):
 		[r, c] = findBlankSpace(state)
-		countFromBottom = arrLen - r + 1
+		countFromBottom = arrLen - r
 		if isEven(countFromBottom):
 			return not isEven(count)
 		else:
@@ -80,7 +82,6 @@ def solvable(state):
 
 	else:
 		return isEven(count)
-
 run = 1
 
 #puzzleClasses = [PuzzleIDS, PuzzleOOP, PuzzleMHT, PuzzleSWP]
