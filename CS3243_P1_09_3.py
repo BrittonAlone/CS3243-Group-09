@@ -109,7 +109,7 @@ class Puzzle(object):
 
     	if self.isEven(arrLen):
     		[r, c] = self.findBlankSpace(state)
-    		countFromBottom = arrLen - r + 1
+    		countFromBottom = arrLen - r
     		if self.isEven(countFromBottom):
     			return not self.isEven(count)
     		else:
