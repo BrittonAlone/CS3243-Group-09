@@ -13,9 +13,8 @@ def checkSmallerAfter(arr, i):
 	check = int(arr[i])
 	count = 0
 	for x in range(i, arrLen):
-		if (int(arr[x]) < check):
+		if (int(arr[x]) < check)  and int(arr[x]):
 			count = count + 1
-
 	return count
 
 def solvable(state):
