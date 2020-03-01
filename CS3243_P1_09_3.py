@@ -10,6 +10,10 @@ class Puzzle(object):
         self.init_state = init_state
         self.goal_state = goal_state
         self.actions = list()
+        self.solvable = False
+        self.maxSize = 1
+        self.solutionDepth = 0
+        self.runtime = 0
         self. goal_position = {}
         for x, row in enumerate(goal_state):
             for y, num in enumerate(row):
@@ -17,7 +21,7 @@ class Puzzle(object):
 
     def solve(self):
         #check if unsolvable
-        if not self.solvable(self.init_state):
+        if not self.isSolvable(self.init_state):
             print("UNSOLVABLE")
             return ["UNSOLVABLE"]
 
@@ -44,10 +48,14 @@ class Puzzle(object):
             #goal state found
             if currNode[1] == self.goal_state:
                 endTime = datetime.now()
+                delta = endTime - startTime
+                self.solvable = True
+                self.maxSize = max_stack
+                self.solutionDepth = len(currNode[2])
+                self.runtime = delta
                 print("Goal state found!")
                 print("Move sequence:")
                 print(currNode[2])
-                delta = endTime - startTime
                 print("Time taken: " + str(delta.seconds) + "."
                 + str(delta.microseconds) + " seconds.")
                 print("Number of moves: " + str(len(currNode[2])))
@@ -92,7 +100,7 @@ class Puzzle(object):
 
     	return count
 
-    def solvable(self, state):
+    def isSolvable(self, state):
     	# Solvable if linearly adds up to an even number
     	# arr is a 2D array
     	arrLen = len(state)
