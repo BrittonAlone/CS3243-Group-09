@@ -1,6 +1,7 @@
 import os
 import sys
 import math
+import gc
 from datetime import datetime
 from Queue import PriorityQueue
 
@@ -37,6 +38,7 @@ class Puzzle(object):
 
         #node = 1
         while stack.qsize() > 0:
+            gc.collect()
             #print("Explore nodes:  "+ str(node))
             if stack.qsize() > max_stack:
                 max_stack = stack.qsize()
@@ -71,6 +73,7 @@ class Puzzle(object):
                 successor[0] = hn
                 stack.put(successor)
                 explored += 1
+            del(currNode)
 
     # you may add more functions if you think is useful
 
