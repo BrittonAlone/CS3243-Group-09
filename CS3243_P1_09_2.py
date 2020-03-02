@@ -1,7 +1,6 @@
 import os
 import sys
 import math
-import gc
 from datetime import datetime
 from Queue import PriorityQueue
 
@@ -37,7 +36,6 @@ class Puzzle(object):
         explored = 1
 
         while stack.qsize() > 0:
-            gc.collect()
             if stack.qsize() > max_stack:
                 max_stack = stack.qsize()
             currNode = stack.get()
