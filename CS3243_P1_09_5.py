@@ -28,6 +28,9 @@ except:
   print('usage: python CS3243_P1_09_5.py [-s <sample size> -n <puzzle size>')
   sys.exit(1)
 
+print("Using default sample size s = 10, for 3-puzzles.")
+print("Use flags [-s S -n N] for sample size S and N-puzzles.")
+
 goalState = [[0 for i in range(n)] for j in range(n)]
 for i in range(1, n**2):
     goalState[(i-1)//n][(i-1)%n] = i
