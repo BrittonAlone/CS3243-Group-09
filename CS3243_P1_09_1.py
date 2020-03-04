@@ -148,6 +148,12 @@ class Puzzle(object):
 
         return count
 
+    def findBlankSpace(self, state):
+        for i in range(len(state[0])):
+            for j in range(len(state[0])):
+                if state[i][j] == 0:
+                    return [i, j]
+                    
     def isSolvable(self, state):
         # Solvable if linearly adds up to an even number
         # arr is a 2D array
