@@ -73,6 +73,9 @@ class Puzzle(object):
         return self.Board(newBlocks)
 
     def solve(self):
+        if not self.isSolvable(self.init_state):            
+            print("UNSOLVABLE")
+            return ["UNSOLVABLE"]
         if self.init_state == self.goal_state:
             print("Initial and goal states are identical!")
             return []
@@ -82,6 +85,7 @@ class Puzzle(object):
         startTime = datetime.now()
         depth = 3
         maxSize = 0
+        explored = 1
         while True: # outer loop that repeats for each depth
             if depth == 40:
                 # terminate due to excessive runtime
@@ -122,10 +126,55 @@ class Puzzle(object):
                         self.maxSize = maxSize
                         self.solutionDepth = len(successor.moves)
                         self.runtime = delta
+                        self.explored = explored
+                        self.expanded = len(visited)
                         return (successor.moves)
                     stack.append(successor)
+                    explored += 1
 
             depth += 1 # increment depth limit and try again          
+
+    #Solvability check
+    def isEven(self, n):
+        return n % 2 == 0
+
+    def checkSmallerAfter(self, arr, i):
+        arrLen = len(arr)
+        check = int(arr[i])
+        count = 0
+        for x in range(i, arrLen):
+            if (int(arr[x]) < check)  and int(arr[x]):
+                count = count + 1
+
+        return count
+
+    def isSolvable(self, state):
+        # Solvable if linearly adds up to an even number
+        # arr is a 2D array
+        arrLen = len(state)
+        arrStore = []
+
+        for arrH in state:
+            for arrV in arrH:
+                arrStore.append(arrV)
+
+        arrStoreLen = len(arrStore)
+
+        count = 0
+        for i in range(arrStoreLen):
+            count = count + self.checkSmallerAfter(arrStore, i)
+
+        if self.isEven(arrLen):
+            [r, c] = self.findBlankSpace(state)
+            countFromBottom = arrLen - r
+            if self.isEven(countFromBottom):
+                return not self.isEven(count)
+            else:
+                return self.isEven(count)
+
+
+        else:
+            return self.isEven(count)
 
     # hashing an entire Board or State object is too slow, so we hash the 2D array of blocks instead    
     def stringifyBlocks(self, blocks):

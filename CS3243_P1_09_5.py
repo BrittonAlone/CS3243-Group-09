@@ -3,18 +3,18 @@ import sys
 import getopt
 from datetime import datetime, timedelta
 
-### Change import source for different algorithms
 from CS3243_P1_09_1 import Puzzle as PuzzleIDS
-#from CS3243_P1_09_2 import Puzzle as PuzzleOOP
-#from CS3243_P1_09_3 import Puzzle as PuzzleMHT
-#from CS3243_P1_09_4 import Puzzle as PuzzleSWP
+from CS3243_P1_09_2 import Puzzle as PuzzleOOP
+from CS3243_P1_09_3 import Puzzle as PuzzleMHT
+from CS3243_P1_09_4 import Puzzle as PuzzleSWP
 
-sampleSize = 3
+sampleSize = 10
 n = 3
 file1 = "exp1.out"
 file2 = "exp2.out"
 file3 = "exp3.out"
 file4 = "exp4.out"
+puzzlesFile = "testedPuzzles.txt"
 
 try:
   opts, args = getopt.getopt(sys.argv[1:],"s:n:")
@@ -34,10 +34,10 @@ for i in range(1, n**2):
     goalState[n - 1][n - 1] = 0
 
 def findBlankSpace(state):
-    for i in range(len(state[0])):
-        for j in range(len(state[0])):
-            if state[i][j] == 0:
-		return [i, j]
+	for i in range(len(state[0])):
+		for j in range(len(state[0])):
+			if state[i][j] == 0:
+				return [i, j]
 
 
 def isEven(n):
@@ -48,44 +48,41 @@ def checkSmallerAfter(arr, i):
     check = int(arr[i])
     count = 0
     for x in range(i, arrLen):
-        if (int(arr[x]) < check):
-	    count = count + 1
-
+        if (int(arr[x]) < check)  and int(arr[x]):
+            count = count + 1
     return count
 
 def solvable(state):
-	# Solvable if linearly adds up to an even number
-	# arr is a 2D array
-	arrLen = len(state)
-	arrStore = []
+    # Solvable if linearly adds up to an even number
+    # arr is a 2D array
+    arrLen = len(state)
+    arrStore = []
 
-	for arrH in state:
-		for arrV in arrH:
-			arrStore.append(arrV)
+    for arrH in state:
+        for arrV in arrH:
+            arrStore.append(arrV)
 
-	arrStoreLen = len(arrStore)
+    arrStoreLen = len(arrStore)
 
-	count = 0
-	for i in range(arrStoreLen):
-		count = count + checkSmallerAfter(arrStore, i)
+    count = 0
+    for i in range(arrStoreLen):
+        count = count + checkSmallerAfter(arrStore, i)
 
-	print(count)
+    if isEven(arrLen):
+        [r, c] = findBlankSpace(state)
+        countFromBottom = arrLen - r
+        if isEven(countFromBottom):
+            return not isEven(count)
+        else:
+            return isEven(count)
 
-	if isEven(arrLen):
-		[r, c] = findBlankSpace(state)
-		countFromBottom = arrLen - r
-		if isEven(countFromBottom):
-			return not isEven(count)
-		else:
-			return isEven(count)
+    else:
+        return isEven(count)
 
-
-	else:
-		return isEven(count)
 run = 1
+allPuzzles = []
 
-#puzzleClasses = [PuzzleIDS, PuzzleOOP, PuzzleMHT, PuzzleSWP]
-puzzleClasses = [PuzzleIDS]
+puzzleClasses = [PuzzleIDS, PuzzleOOP, PuzzleMHT, PuzzleSWP]
 outfiles = [
     open(file1, 'a'),
     open(file2, 'a'),
@@ -100,6 +97,8 @@ for s in stats:
     s["unsolved"] = 0
     s["runtime"] = timedelta(0)
     s["space"] = 0
+    s["explored"] = 0
+    s["expanded"] = 0
 
 while run <= sampleSize:
   
@@ -111,45 +110,55 @@ while run <= sampleSize:
     blocks[j] = [randomSequence[k] for k in range(j * n, n + j * n)]
 
   print(blocks)
-  if not solvable(blocks):
+  if not solvable(blocks) or blocks in allPuzzles:
     continue # generate another board and try again
+  else:
+    allPuzzles.append(blocks)
 
   for i in range(len(puzzleClasses)):
     ### Run algorithm
     puzzle = puzzleClasses[i](blocks, goalState)
     puzzle.solve()
     solved = puzzle.solvable
-    depth = puzzle.solutionDepth
-    space = puzzle.maxSize
-    delta = puzzle.runtime
-
-    '''print("Solved: " + str(solved))
-    if solved:
-      print("Depth: " + str(depth))
-    print("Space: " + str(space))
-    print("Time: " + str(delta.seconds))'''
-    stats[i]["space"] += space
-    stats[i]["runtime"] += delta
-    if solved:
-      stats[i]["solved"] += 1
-    else:
+    if not solved:
       stats[i]["unsolved"] += 1
+      outfiles[i].write("Failed to solved.\n")
+    else:
+      depth = puzzle.solutionDepth
+      space = puzzle.maxSize
+      delta = puzzle.runtime
+      expanded = puzzle.expanded
+      explored = puzzle.explored
+    
+      stats[i]["space"] += space
+      stats[i]["runtime"] += delta
+      stats[i]["solved"] += 1
+      stats[i]["expanded"] += expanded
+      stats[i]["explored"] += explored
 
-    outfiles[i].write(str(depth) + "," + str(space) + "," + str(delta.seconds) + "\n")
+      outfiles[i].write("{0:d},{1:d},{2:.2f},{3:d},{4:d}\n".format(depth, space, delta.seconds + delta.microseconds / 1000000.0, expanded, explored))
   
   run += 1
 
 for i in range(len(puzzleClasses)):
     avgSpace = float(stats[i]["space"]) / sampleSize
-    avgRuntime = (stats[i]["runtime"].seconds + (stats[i]["runtime"].microseconds / 1000000)) / sampleSize
+    avgRuntime = stats[i]["runtime"] / sampleSize
+    avgExpanded = stats[i]["expanded"] / sampleSize
+    avgExplored = stats[i]["explored"] / sampleSize
     '''print("Average queue/stack size: " + str(avgSpace))
     print("Average runtime: " + str(avgRuntime))
     print("Total solved puzzles: " + str(totalSolved))
     print("Total unsolved puzzles: " + str(totalUnsolved))'''
     outfiles[i].write("Average queue/stack size: " + str(avgSpace) + "\n")
-    outfiles[i].write("Average runtime: " + str(avgRuntime) + "\n")
+    outfiles[i].write("Average expanded: " + str(avgExpanded) + "\n")
+    outfiles[i].write("Average explored: " + str(avgExplored) + "\n")
+    outfiles[i].write("Average runtime: {0:.2f}\n".format(avgRuntime.seconds + avgRuntime.microseconds / 1000000.0))
     outfiles[i].write("Total solved puzzles: " + str(stats[i]["solved"]) + "\n")
     outfiles[i].write("Total unsolved puzzles: " + str(stats[i]["unsolved"]) + "\n")
 
 for outfile in outfiles:
     outfile.close()
+
+puzzlesOutfile = open(puzzlesFile, 'a')
+for puzzle in allPuzzles:
+  puzzlesOutfile.write(str(puzzle) + "\n")

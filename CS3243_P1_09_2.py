@@ -30,7 +30,7 @@ class Puzzle(object):
         #initialise with initial state
         stack = PriorityQueue()
         #stack keeps a list of nodes [fn, state, moves]
-        stack.put([len(self.actions) + puzzle.gethn(self.init_state), self.init_state, self.actions])
+        stack.put([len(self.actions) + self.gethn(self.init_state), self.init_state, self.actions])
         visited = set()
         max_stack = 1
         explored = 1
@@ -39,9 +39,9 @@ class Puzzle(object):
             if stack.qsize() > max_stack:
                 max_stack = stack.qsize()
             currNode = stack.get()
-            if puzzle.tuplifyStates(currNode[1]) in visited:
+            if self.tuplifyStates(currNode[1]) in visited:
                 continue
-            visited.add(puzzle.tuplifyStates(currNode[1])) #A* graph search
+            visited.add(self.tuplifyStates(currNode[1])) #A* graph search
             #goal state found
             if currNode[1] == self.goal_state:
                 endTime = datetime.now()
@@ -50,6 +50,8 @@ class Puzzle(object):
                 self.maxSize = max_stack
                 self.solutionDepth = len(currNode[2])
                 self.runtime = delta
+                self.explored = explored
+                self.expanded = len(visited)
                 print("Goal state found!")
                 print("Move sequence:")
                 print(currNode[2])
@@ -60,11 +62,11 @@ class Puzzle(object):
                 print("Number of nodes explored: " + str(explored))
                 print("Maximum number of nodes in the queue: " + str(max_stack) + " nodes.")
                 return currNode[2]
-            successors = puzzle.findSuccessors(currNode)
+            successors = self.findSuccessors(currNode)
             for successor in successors:
-                if puzzle.tuplifyStates(successor[1]) in visited:
+                if self.tuplifyStates(successor[1]) in visited:
                     continue
-                hn = puzzle.gethn(successor[1]) + len(successor[2])
+                hn = self.gethn(successor[1]) + len(successor[2])
                 successor[0] = hn
                 stack.put(successor)
                 explored += 1
@@ -129,15 +131,15 @@ class Puzzle(object):
     #find the next valid moves
     def findSuccessors(self, node):
         successors = []
-        blankSpace = puzzle.findBlankSpace(node[1])
+        blankSpace = self.findBlankSpace(node[1])
         if blankSpace[0] != len(node[1]) - 1:
-            successors.append(puzzle.slideUp(node))
+            successors.append(self.slideUp(node))
         if blankSpace[0] != 0:
-            successors.append(puzzle.slideDown(node))
+            successors.append(self.slideDown(node))
         if blankSpace[1] != len(node[1]) - 1:
-            successors.append(puzzle.slideLeft(node))
+            successors.append(self.slideLeft(node))
         if blankSpace[1] != 0:
-            successors.append(puzzle.slideRight(node))
+            successors.append(self.slideRight(node))
         return successors
 
     #input the 2d array of state to find the zero tile
@@ -150,7 +152,7 @@ class Puzzle(object):
     def slideUp(self, node):
         state = node[1]
         n = len(node[1])
-        blankSpace = puzzle.findBlankSpace(state)
+        blankSpace = self.findBlankSpace(state)
         moves = []
         for move in node[2]:
             moves.append(move)
@@ -167,7 +169,7 @@ class Puzzle(object):
     def slideDown(self, node):
         state = node[1]
         n = len(node[1])
-        blankSpace = puzzle.findBlankSpace(state)
+        blankSpace = self.findBlankSpace(state)
         moves = []
         for move in node[2]:
             moves.append(move)
@@ -184,7 +186,7 @@ class Puzzle(object):
     def slideLeft(self, node):
         state = node[1]
         n = len(node[1])
-        blankSpace = puzzle.findBlankSpace(state)
+        blankSpace = self.findBlankSpace(state)
         moves = []
         for move in node[2]:
             moves.append(move)
@@ -201,7 +203,7 @@ class Puzzle(object):
     def slideRight(self, node):
         state = node[1]
         n = len(node[1])
-        blankSpace = puzzle.findBlankSpace(state)
+        blankSpace = self.findBlankSpace(state)
         moves = []
         for move in node[2]:
             moves.append(move)
