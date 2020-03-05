@@ -47,7 +47,7 @@ class Puzzle(object):
                     if blocks[i][j] == 0:
                         self.blankSpace = [i, j]
                         break
-            
+
     def moveBlankSpaceLeft(self, board):
         newBlocks = deepcopy(board.blocks)
         newBlocks[board.blankSpace[0]][board.blankSpace[1]] = newBlocks[board.blankSpace[0]][board.blankSpace[1] - 1]
@@ -73,7 +73,7 @@ class Puzzle(object):
         return self.Board(newBlocks)
 
     def solve(self):
-        if not self.isSolvable(self.init_state):            
+        if not self.isSolvable(self.init_state):
             print("UNSOLVABLE")
             return ["UNSOLVABLE"]
         if self.init_state == self.goal_state:
@@ -85,7 +85,7 @@ class Puzzle(object):
         startTime = datetime.now()
         depth = 3
         maxSize = 0
-        explored = 1
+        generated = 1
         while True: # outer loop that repeats for each depth
             if depth == 40:
                 # terminate due to excessive runtime
@@ -120,19 +120,19 @@ class Puzzle(object):
                         print("Move sequence:")
                         print(successor.moves)
                         delta = endTime - startTime
-                        print("Time taken: " + str(delta.seconds) + "." 
+                        print("Time taken: " + str(delta.seconds) + "."
                         + str(delta.microseconds) + " seconds.")
                         self.solvable = True
                         self.maxSize = maxSize
                         self.solutionDepth = len(successor.moves)
                         self.runtime = delta
-                        self.explored = explored
-                        self.expanded = len(visited)
+                        self.generated = generated
+                        self.explored = len(visited)
                         return (successor.moves)
                     stack.append(successor)
-                    explored += 1
+                    generated += 1
 
-            depth += 1 # increment depth limit and try again          
+            depth += 1 # increment depth limit and try again
 
     #Solvability check
     def isEven(self, n):
@@ -153,7 +153,7 @@ class Puzzle(object):
             for j in range(len(state[0])):
                 if state[i][j] == 0:
                     return [i, j]
-                    
+
     def isSolvable(self, state):
         # Solvable if linearly adds up to an even number
         # arr is a 2D array
@@ -182,9 +182,9 @@ class Puzzle(object):
         else:
             return self.isEven(count)
 
-    # hashing an entire Board or State object is too slow, so we hash the 2D array of blocks instead    
+    # hashing an entire Board or State object is too slow, so we hash the 2D array of blocks instead
     def stringifyBlocks(self, blocks):
-        return ''.join(''.join(map(str, row)) for row in blocks)            
+        return ''.join(''.join(map(str, row)) for row in blocks)
 
 if __name__ == "__main__":
     # do NOT modify below
@@ -201,7 +201,7 @@ if __name__ == "__main__":
         raise IOError("Input file not found!")
 
     lines = f.readlines()
-    
+
     # n = num rows in input file
     n = len(lines)
     # max_num = n to the power of 2 - 1
@@ -210,7 +210,7 @@ if __name__ == "__main__":
     # Instantiate a 2D list of size n x n
     init_state = [[0 for i in range(n)] for j in range(n)]
     goal_state = [[0 for i in range(n)] for j in range(n)]
-    
+
 
     i,j = 0, 0
     for line in lines:

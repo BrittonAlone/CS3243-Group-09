@@ -33,7 +33,7 @@ class Puzzle(object):
         stack.put([len(self.actions) + self.gethn(self.init_state), self.init_state, self.actions])
         visited = set()
         max_stack = 1
-        explored = 1
+        generated = 1
 
         while stack.qsize() > 0:
             if stack.qsize() > max_stack:
@@ -50,16 +50,16 @@ class Puzzle(object):
                 self.maxSize = max_stack
                 self.solutionDepth = len(currNode[2])
                 self.runtime = delta
-                self.explored = explored
-                self.expanded = len(visited)
+                self.generated = generated
+                self.explored = len(visited)
                 print("Goal state found!")
                 print("Move sequence:")
                 print(currNode[2])
                 print("Time taken: " + str(delta.seconds) + "."
                 + str(delta.microseconds) + " seconds.")
                 print("Number of moves: " + str(len(currNode[2])))
-                print("Number of nodes expanded: " + str(len(visited)))
-                print("Number of nodes explored: " + str(explored))
+                print("Number of nodes explored: " + str(len(visited)))
+                print("Number of nodes generated: " + str(generated))
                 print("Maximum number of nodes in the queue: " + str(max_stack) + " nodes.")
                 return currNode[2]
             successors = self.findSuccessors(currNode)
@@ -69,7 +69,7 @@ class Puzzle(object):
                 hn = self.gethn(successor[1]) + len(successor[2])
                 successor[0] = hn
                 stack.put(successor)
-                explored += 1
+                generated += 1
             del(currNode)
 
     """Tile out of Place Heurisitic"""
